@@ -44,8 +44,8 @@ public class tiendasEFEV2 {
             }
         } while(opcion != 11);
     }
-
-    // Registro de Usuario con validaciones
+//AXCEL
+    // 1 Registro de Usuario con validaciones
     public static void registrarUsuario() {
         System.out.println("\n--- Registro de Usuario ---");
 
@@ -85,25 +85,33 @@ public class tiendasEFEV2 {
         System.out.println("✅ Registro exitoso. ¡Bienvenido a Tiendas EFE!");
     }
 
-    // Inicio de sesión
+    // 2 Inicio de sesión con límite de intentos
     public static boolean iniciarSesion() {
         System.out.println("\n--- Iniciar Sesión ---");
+        int intentos = 0;
+        final int MAX_INTENTOS = 3;
 
-        while (true) {
+        while (intentos < MAX_INTENTOS) {
             System.out.println("Ingrese su correo:");
             String emailIngresado = sc.nextLine();
-            System.out.println("Ingrese su password:");
+            System.out.println("Ingrese su contraseña:");
             String passwordIngresado = sc.nextLine();
 
             if (emailIngresado.equals(emailGuardado) && passwordIngresado.equals(passwordGuardado)) {
+                System.out.println("✅ Inicio de sesión exitoso.");
                 return true;
             } else {
-                System.out.println("❌ Correo o contraseña incorrectos. Intente nuevamente.");
+                intentos++;
+                System.out.println("❌ El usuario o contraseña ingresados son incorrectos. Revisa los datos y vuélvelos a ingresar. Intento " + intentos + " de " + MAX_INTENTOS);
             }
         }
+
+        System.out.println("Se acabaron los intentos");
+        return false;
     }
 
-    // Métodos de validación
+
+    // 3 Métodos de validación
     private static boolean validarCorreo(String email) {
         String regex = "^[\\w.-]+@[\\w.-]+\\.com$";
         return Pattern.compile(regex).matcher(email).matches();
@@ -116,7 +124,7 @@ public class tiendasEFEV2 {
     private static boolean validarCelular(String celular) {
         return celular.matches("\\d{9}");
     }
-
+// ROMULO
     // 4. Visualizacion de Productos
     static void mostrarProductos() {
         System.out.println("\n--- Productos Disponibles (LAVADORAS) ---");
@@ -139,65 +147,248 @@ public class tiendasEFEV2 {
             System.out.println("Mabe AquaSaver - 19kg - S/. 1,899");
         }
     }
-    // 6. Agregar Productos al Carrito
+    // 6. Agregar Productos al Carrito (permitiendo múltiples productos)
     static void agregarCarrito() {
         System.out.println("\n--- Agregar al Carrito ---");
-        System.out.print("Ingrese el nombre del producto a agregar: ");
-        productoCarrito = sc.nextLine();
-        System.out.print("Ingrese su precio: S/.");
-        precioCarrito = sc.nextDouble();
-        System.out.println("Producto agregado al carrito.");
+        boolean seguirComprando = true;
+
+        while (seguirComprando) {
+            System.out.println("Seleccione un producto para agregar:");
+            System.out.println("1. LG TwinWash - 22kg - S/. 3,299");
+            System.out.println("2. Samsung Ecobubble - 20kg - S/. 2,899");
+            System.out.println("3. Mabe AquaSaver - 19kg - S/. 1,899");
+            System.out.print("Ingrese el número del producto: ");
+
+            int opcion = sc.nextInt();
+            sc.nextLine(); // Limpiar buffer
+
+            switch (opcion) {
+                case 1:
+                    productoCarrito += "LG TwinWash - 22kg\n";
+                    precioCarrito += 3299;
+                    break;
+                case 2:
+                    productoCarrito += "Samsung Ecobubble - 20kg\n";
+                    precioCarrito += 2899;
+                    break;
+                case 3:
+                    productoCarrito += "Mabe AquaSaver - 19kg\n";
+                    precioCarrito += 1899;
+                    break;
+                default:
+                    System.out.println("❌ Opción inválida.");
+                    continue;
+            }
+
+            System.out.println("✅ Producto agregado al carrito.");
+            System.out.print("¿Desea agregar otro producto? (Sí/No): ");
+            String respuesta = sc.nextLine();
+            seguirComprando = respuesta.equalsIgnoreCase("Sí");
+        }
+
+        System.out.println("🛒 Productos en carrito:\n" + productoCarrito);
+        System.out.println("💰 Precio total: S/. " + precioCarrito);
     }
+// KENJI
+
     // 7. Ver Carrito de Compras
     static void verCarrito() {
         System.out.println("\n--- Carrito de Compras ---");
-        if (!productoCarrito.equals("")) {
-            System.out.println("Producto: " + productoCarrito + " | Precio: S/. " + precioCarrito);
+
+        if (!productoCarrito.isEmpty()) {
+            System.out.println("✅ Productos en carrito:");
+            System.out.println(productoCarrito); // Muestra los productos tal como fueron almacenados
+
+            System.out.println("💰 Precio total: S/. " + precioCarrito);
         } else {
-            System.out.println("El carrito está vacío.");
+            System.out.println("🛒 El carrito está vacío.");
         }
     }
+
     // 8. Procesar Pedido y Validar Stock
     static void procesarPedido() {
         System.out.println("\n--- Procesando Pedido ---");
-        if (!productoCarrito.equals("")) {
-            System.out.println("Producto disponible. Pedido procesado.");
+
+        // Definir productos y stock según los datos originales
+        String[] nombres = {"LG TwinWash - 22kg", "Samsung Ecobubble - 20kg", "Mabe AquaSaver - 19kg"};
+        int[] stocks = {3, 5, 2}; // Manteniendo la cantidad de stock del código de tu amigo
+
+        boolean stockOk = true;
+
+        if (!productoCarrito.isEmpty()) {
+            System.out.println("🛒 Productos en carrito:");
+
+            // Verificar disponibilidad de cada producto en el carrito
+            for (int i = 0; i < nombres.length; i++) {
+                if (productoCarrito.contains(nombres[i])) {
+                    if (stocks[i] <= 0) {
+                        System.out.println("❌ Stock insuficiente para: " + nombres[i]);
+                        stockOk = false;
+                    } else {
+                        System.out.println("- " + nombres[i] + " (Disponible)");
+                        stocks[i]--; // Reducir el stock
+                    }
+                }
+            }
+
+            if (stockOk) {
+                System.out.println("\n✅ Pedido procesado con éxito.");
+            } else {
+                System.out.println("\n⚠️ Pedido no procesado por falta de stock.");
+            }
         } else {
-            System.out.println("No hay productos en el carrito.");
+            System.out.println("⚠️ No hay productos en el carrito.");
         }
     }
-    // 9. Elegir Tipo de Envio
+
+    // 9. Elegir Tipo de Envío
     static void elegirEnvio() {
         System.out.println("\n--- Tipo de Envío ---");
-        System.out.println("1. Envío a domicilio");
-        System.out.println("2. Retiro en tienda");
-        int envio = sc.nextInt();
-        if (envio == 1) {
-            System.out.println("Seleccionaste envío a domicilio.");
-        } else {
-            System.out.println("Seleccionaste retiro en tienda.");
+        System.out.println("1. Envío normal (S/. 20)");
+        System.out.println("2. Envío express (S/. 50)");
+
+        System.out.print("Seleccione el tipo de envío: ");
+        int opcionEnvio = sc.nextInt();
+        sc.nextLine(); // Limpiar buffer
+
+        double costoEnvio = 0;
+        String tipoEnvio = "";
+
+        switch (opcionEnvio) {
+            case 1:
+                tipoEnvio = "Normal";
+                costoEnvio = 20;
+                break;
+            case 2:
+                tipoEnvio = "Express";
+                costoEnvio = 50;
+                break;
+            default:
+                System.out.println("❌ Opción inválida. Se asignará envío normal por defecto.");
+                tipoEnvio = "Normal";
+                costoEnvio = 20;
         }
+
+        precioCarrito += costoEnvio;
+        System.out.println("🚚 Tipo de envío seleccionado: " + tipoEnvio + " | Costo: S/. " + costoEnvio);
     }
-    // 10. Seleccionar Metodo de Pago
+// PAUL
+    // Método para validar número de tarjeta (16 dígitos)
+    private static boolean validarTarjeta(String tarjeta) {
+        return tarjeta.matches("\\d{16}");
+    }
+
+    // Método para validar CVV (3 dígitos)
+    private static boolean validarCVV(String cvv) {
+        return cvv.matches("\\d{3}");
+    }
+
+    // 10. Seleccionar Método de Pago con validación completa
     static void metodoPago() {
         System.out.println("\n--- Método de Pago ---");
         System.out.println("1. Tarjeta de crédito");
         System.out.println("2. Tarjeta de débito");
-        System.out.println("3. PagoEfectivo");
-        System.out.println("4. Transferencia bancaria");
+
+        System.out.print("Seleccione su método de pago: ");
         int metodo = sc.nextInt();
-        System.out.println("Método de pago seleccionado correctamente.");
+        sc.nextLine(); // Limpiar buffer
+
+        if (metodo != 1 && metodo != 2) {
+            System.out.println("❌ Opción inválida. Debe seleccionar tarjeta de crédito o débito.");
+            return;
+        }
+
+        String tipoPago = (metodo == 1) ? "Tarjeta de crédito" : "Tarjeta de débito";
+
+        // Solicitar datos de tarjeta y validarlos
+        String numeroTarjeta, cvvTarjeta;
+        do {
+            System.out.print("Ingrese el número de tarjeta (16 dígitos): ");
+            numeroTarjeta = sc.nextLine();
+            if (!validarTarjeta(numeroTarjeta)) {
+                System.out.println("❌ Número de tarjeta inválido. Debe tener 16 dígitos numéricos.");
+            }
+        } while (!validarTarjeta(numeroTarjeta));
+
+        do {
+            System.out.print("Ingrese el código CVV (3 dígitos): ");
+            cvvTarjeta = sc.nextLine();
+            if (!validarCVV(cvvTarjeta)) {
+                System.out.println("❌ CVV inválido. Debe contener exactamente 3 dígitos numéricos.");
+            }
+        } while (!validarCVV(cvvTarjeta));
+
+        // Solicitar dirección de envío
+        System.out.print("Ingrese su departamento: ");
+        String departamento = sc.nextLine();
+
+        System.out.print("Ingrese su provincia: ");
+        String provincia = sc.nextLine();
+
+        System.out.print("Ingrese su distrito: ");
+        String distrito = sc.nextLine();
+
+        System.out.print("Ingrese su dirección exacta: ");
+        String direccion = sc.nextLine();
+
+        // Confirmar método de pago y datos ingresados
+        System.out.println("\n✅ Método de pago seleccionado: " + tipoPago);
+        System.out.println("💳 Tarjeta validada correctamente.");
+        System.out.println("📍 Dirección de entrega:");
+        System.out.println("Departamento: " + departamento);
+        System.out.println("Provincia: " + provincia);
+        System.out.println("Distrito: " + distrito);
+        System.out.println("Dirección: " + direccion);
     }
-    // 11. Generar Comprobante
-    static void generarComprobante() {
-        System.out.println("\n--- Comprobante de Compra ---");
-        if (!productoCarrito.equals("")) {
-            System.out.println("Cliente: " + nombreGuardado);
-            System.out.println("Producto: " + productoCarrito);
-            System.out.println("Total pagado: S/." + precioCarrito);
-            System.out.println("Se envió comprobante a: " + emailGuardado);
+    // 11. Procesar Pago
+    static void procesarPago() {
+        System.out.println("\n--- Procesar Pago ---");
+
+        if (precioCarrito == 0) {
+            System.out.println("⚠️ No hay productos en el carrito. Agregue productos antes de pagar.");
+            return;
+        }
+
+        System.out.println("💰 Total a pagar: S/. " + precioCarrito);
+        System.out.print("Ingrese el monto con el que pagará: S/. ");
+        double montoIngresado = sc.nextDouble();
+        sc.nextLine(); // Limpiar buffer
+
+        if (montoIngresado < precioCarrito) {
+            System.out.println("❌ Monto insuficiente. Faltan S/. " + (precioCarrito - montoIngresado));
         } else {
-            System.out.println("No hay productos para generar comprobante.");
+            double cambio = montoIngresado - precioCarrito;
+            System.out.println("✅ Pago realizado con éxito.");
+            if (cambio > 0) {
+                System.out.println("💵 Su cambio es S/. " + cambio);
+            }
         }
     }
+
+    // 12. Generar Boleta de Venta
+    static void generarComprobante() {
+        System.out.println("\n--- Boleta de Venta ---");
+
+        if (precioCarrito == 0 || nombreGuardado == null) {
+            System.out.println("⚠️ No se puede generar la boleta. Asegúrese de haber registrado un usuario y agregado productos al carrito.");
+            return;
+        }
+
+        double subtotal = precioCarrito;
+        double igv = subtotal * 0.18;
+        double totalPagar = subtotal + igv;
+
+        System.out.println("----BOLETA DE VENTA---");
+        System.out.println("Nombre: " + nombreGuardado);
+        System.out.println("Apellidos: " + apellidosGuardados);
+        System.out.println("DNI: " + dniGuardado);
+
+        System.out.println("\nDetalles de Pago:");
+        System.out.println("Subtotal: S/. " + subtotal);
+        System.out.println("IGV (18%): S/. " + igv);
+        System.out.println("Total a pagar: S/. " + totalPagar);
+
+        System.out.println("\n GRACIAS POR SU COMPRA.");
+    }
+
 }
