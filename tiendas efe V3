@@ -1,0 +1,276 @@
+import java.util.Scanner;
+import java.util.regex.Pattern;
+
+public class TiendasEFE {
+
+    // ============================= VARIABLES GLOBALES =============================
+    static Scanner sc = new Scanner(System.in);
+    static String nombre, apellidos, dni, celular, email, password;
+    static String carrito = "";
+    static double totalCarrito = 0;
+    static boolean sesionIniciada = false;
+
+    // ============================= MÉTODO PRINCIPAL =============================
+    public static void main(String[] args) {
+        int opcion;
+        do {
+            mostrarMenuPrincipal();
+            opcion = sc.nextInt();
+            sc.nextLine(); // limpiar buffer
+
+            switch (opcion) {
+                case 1 -> registrarUsuario();
+                case 2 -> sesionIniciada = iniciarSesion();
+                case 3 -> mostrarProductos();
+                case 4 -> buscarProducto();
+                case 5 -> agregarAlCarrito();
+                case 6 -> verCarrito();
+                case 7 -> procesarPedido();
+                case 8 -> elegirEnvio();
+                case 9 -> metodoPago();
+                case 10 -> generarComprobante();
+                case 11 -> System.out.println("👋 Gracias por usar Tiendas EFE. ¡Hasta luego!");
+                default -> System.out.println("❌ Opción inválida. Intente de nuevo.");
+            }
+        } while (opcion != 11);
+    }
+
+    // ============================= MENÚ PRINCIPAL =============================
+    static void mostrarMenuPrincipal() {
+        System.out.println("\n======== TIENDAS EFE ========");
+        System.out.println("1. Registrar Usuario");
+        System.out.println("2. Iniciar Sesión");
+        System.out.println("3. Ver Productos");
+        System.out.println("4. Buscar Producto");
+        System.out.println("5. Agregar al Carrito");
+        System.out.println("6. Ver Carrito");
+        System.out.println("7. Procesar Pedido");
+        System.out.println("8. Elegir Envío");
+        System.out.println("9. Seleccionar Método de Pago");
+        System.out.println("10. Generar Comprobante");
+        System.out.println("11. Salir");
+        System.out.print("Seleccione una opción: ");
+    }
+
+    // ============================= REGISTRO E INICIO DE SESIÓN =============================
+    static void registrarUsuario() {
+        System.out.println("\n--- Registro de Usuario ---");
+
+        System.out.print("Ingrese su nombre: ");
+        nombre = sc.nextLine();
+
+        System.out.print("Ingrese sus apellidos: ");
+        apellidos = sc.nextLine();
+
+        do {
+            System.out.print("Ingrese su DNI (8 dígitos): ");
+            dni = sc.nextLine();
+        } while (!dni.matches("\\d{8}"));
+
+        do {
+            System.out.print("Ingrese su celular (9 dígitos): ");
+            celular = sc.nextLine();
+        } while (!celular.matches("\\d{9}"));
+
+        do {
+            System.out.print("Ingrese su correo electrónico: ");
+            email = sc.nextLine();
+        } while (!validarCorreo(email));
+
+        System.out.print("Cree una contraseña: ");
+        password = sc.nextLine();
+
+        System.out.println("✅ Registro completado con éxito.");
+    }
+
+    static boolean iniciarSesion() {
+        System.out.println("\n--- Iniciar Sesión ---");
+        for (int i = 1; i <= 3; i++) {
+            System.out.print("Correo: ");
+            String e = sc.nextLine();
+            System.out.print("Contraseña: ");
+            String p = sc.nextLine();
+
+            if (e.equals(email) && p.equals(password)) {
+                System.out.println("✅ Sesión iniciada.");
+                return true;
+            } else {
+                System.out.println("❌ Datos incorrectos. Intento " + i + " de 3");
+            }
+        }
+        System.out.println("🔒 Acceso denegado.");
+        return false;
+    }
+
+    static boolean validarCorreo(String correo) {
+        return Pattern.matches("^[\\w.-]+@[\\w.-]+\\.com$", correo);
+    }
+
+    // ============================= PRODUCTOS Y CARRITO =============================
+    static void mostrarProductos() {
+        System.out.println("\n--- Productos Disponibles ---");
+        System.out.println("1. LG TwinWash (22kg) - S/. 3299");
+        System.out.println("2. Samsung Ecobubble (20kg) - S/. 2899");
+        System.out.println("3. Mabe AquaSaver (19kg) - S/. 1899");
+    }
+
+    static void buscarProducto() {
+        System.out.print("\n🔍 Buscar producto (marca o capacidad): ");
+        String filtro = sc.nextLine().toLowerCase();
+
+        if (filtro.contains("lg") || filtro.contains("22")) {
+            System.out.println("LG TwinWash - 22kg - S/. 3299");
+        }
+        if (filtro.contains("samsung") || filtro.contains("20")) {
+            System.out.println("Samsung Ecobubble - 20kg - S/. 2899");
+        }
+        if (filtro.contains("mabe") || filtro.contains("19")) {
+            System.out.println("Mabe AquaSaver - 19kg - S/. 1899");
+        }
+    }
+
+    static void agregarAlCarrito() {
+        if (!sesionIniciada) {
+            System.out.println("🔒 Debe iniciar sesión para agregar productos.");
+            return;
+        }
+
+        boolean seguir = true;
+        while (seguir) {
+            mostrarProductos();
+            System.out.print("Seleccione producto (1-3): ");
+            int opc = sc.nextInt();
+            sc.nextLine();
+
+            switch (opc) {
+                case 1 -> {
+                    carrito += "- LG TwinWash - 22kg\n";
+                    totalCarrito += 3299;
+                }
+                case 2 -> {
+                    carrito += "- Samsung Ecobubble - 20kg\n";
+                    totalCarrito += 2899;
+                }
+                case 3 -> {
+                    carrito += "- Mabe AquaSaver - 19kg\n";
+                    totalCarrito += 1899;
+                }
+                default -> System.out.println("❌ Opción inválida.");
+            }
+
+            System.out.print("¿Agregar otro producto? (Sí/No): ");
+            seguir = sc.nextLine().equalsIgnoreCase("sí");
+        }
+    }
+
+    static void verCarrito() {
+        System.out.println("\n🛒 Carrito de Compras");
+        if (carrito.isEmpty()) {
+            System.out.println("Vacío.");
+        } else {
+            System.out.println(carrito);
+            System.out.printf("Total: S/. %.2f\n", totalCarrito);
+        }
+    }
+
+    // ============================= PROCESO DE COMPRA =============================
+    static void procesarPedido() {
+        if (carrito.isEmpty()) {
+            System.out.println("⚠️ Carrito vacío.");
+            return;
+        }
+
+        String[] productos = {"LG TwinWash", "Samsung Ecobubble", "Mabe AquaSaver"};
+        int[] stock = {3, 5, 2};
+
+        boolean sinStock = false;
+
+        for (int i = 0; i < productos.length; i++) {
+            if (carrito.contains(productos[i])) {
+                if (stock[i] <= 0) {
+                    System.out.println("❌ Sin stock: " + productos[i]);
+                    sinStock = true;
+                } else {
+                    stock[i]--;
+                }
+            }
+        }
+
+        if (!sinStock) {
+            System.out.println("✅ Pedido procesado con éxito.");
+        } else {
+            System.out.println("❌ No se pudo completar por falta de stock.");
+        }
+    }
+
+    static void elegirEnvio() {
+        System.out.println("\n🚚 Tipo de Envío");
+        System.out.println("1. Normal (S/. 20)");
+        System.out.println("2. Express (S/. 50)");
+        System.out.print("Opción: ");
+        int envio = sc.nextInt();
+        sc.nextLine();
+
+        double costo = (envio == 2) ? 50 : 20;
+        totalCarrito += costo;
+
+        System.out.println("Envío agregado. Total actual: S/. " + totalCarrito);
+    }
+
+    static void metodoPago() {
+        System.out.println("\n💳 Método de Pago");
+        System.out.println("1. Tarjeta de Crédito");
+        System.out.println("2. Tarjeta de Débito");
+        System.out.print("Opción: ");
+        int metodo = sc.nextInt();
+        sc.nextLine();
+
+        if (metodo != 1 && metodo != 2) {
+            System.out.println("❌ Método inválido.");
+            return;
+        }
+
+        String tarjeta;
+        do {
+            System.out.print("Ingrese número de tarjeta (16 dígitos): ");
+            tarjeta = sc.nextLine();
+        } while (!tarjeta.matches("\\d{16}"));
+
+        String cvv;
+        do {
+            System.out.print("Ingrese CVV (3 dígitos): ");
+            cvv = sc.nextLine();
+        } while (!cvv.matches("\\d{3}"));
+
+        System.out.print("Departamento: ");
+        String dep = sc.nextLine();
+        System.out.print("Provincia: ");
+        String prov = sc.nextLine();
+        System.out.print("Distrito: ");
+        String dist = sc.nextLine();
+        System.out.print("Dirección exacta: ");
+        String dir = sc.nextLine();
+
+        System.out.println("✅ Pago validado.");
+        System.out.println("📍 Entrega en: " + dir + ", " + dist + ", " + prov + ", " + dep);
+    }
+
+    static void generarComprobante() {
+        if (carrito.isEmpty() || nombre == null) {
+            System.out.println("⚠️ Debe iniciar sesión y tener productos en el carrito.");
+            return;
+        }
+
+        double igv = totalCarrito * 0.18;
+        double total = totalCarrito + igv;
+
+        System.out.println("\n===== BOLETA DE VENTA =====");
+        System.out.println("Cliente: " + nombre + " " + apellidos);
+        System.out.println("DNI: " + dni);
+        System.out.println("Productos:\n" + carrito);
+        System.out.printf("Subtotal: S/. %.2f\n", totalCarrito);
+        System.out.printf("IGV (18%%): S/. %.2f\n", igv);
+        System.out.printf("Total: S/. %.2f\n", total);
+        System.out.println("🧾 ¡Gracias por su compra!");
+    }
+}
