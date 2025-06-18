@@ -1,228 +1,421 @@
-import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
+import java.io.FileWriter;
+import java.io.IOException;
 
-public class TiendasEFEV3 {
-    // Datos del usuario
-    private static String emailGuardado, passwordGuardado;
-    private static String nombreGuardado, apellidosGuardados, dniGuardado, celularGuardado;
+public class FUNCIONDEADMINYVENDEDOR {
 
-    // Productos y carrito
-    static ArrayList<Producto> productos = new ArrayList<>();
-    static ArrayList<Producto> carrito = new ArrayList<>();
-    
-    static Scanner sc = new Scanner(System.in);
+    static Scanner scanner = new Scanner(System.in);
+    static ArrayList<String[]> inventory = new ArrayList<>();
+    static ArrayList<String[]> cart = new ArrayList<>();
+    static String vendorUsername = "";
+    static String vendorPassword = "";
 
     public static void main(String[] args) {
-        // Productos predeterminados
-        productos.add(new Producto("LG", "TwinWash", 22, 3299));
-        productos.add(new Producto("Samsung", "Ecobubble", 20, 2899));
-        productos.add(new Producto("Mabe", "AquaSaver", 19, 1899));
+        loadInitialProducts();
 
-        int opcion;
+        int mainOption;
         do {
-            System.out.println("\n--- BIENVENIDO A TIENDAS EFE ---");
-            System.out.println("1. Registro de Usuario");
-            System.out.println("2. Iniciar Sesión");
-            System.out.println("3. Ver Productos Disponibles");
-            System.out.println("4. Buscar Productos");
-            System.out.println("5. Agregar al Carrito");
-            System.out.println("6. Ver Carrito");
-            System.out.println("7. Procesar Pedido");
-            System.out.println("8. Seleccionar Método de Pago");
-            System.out.println("9. Generar Comprobante");
-            System.out.println("10. Salir del Sistema");
-            System.out.print("Seleccione una opción: ");
-            opcion = sc.nextInt();
-            sc.nextLine();
+            System.out.println("\n=== TIENDAS EFE ===");
+            System.out.println("Seleccione su rol:");
+            System.out.println("1. Administrador");
+            System.out.println("2. Vendedor");
+            System.out.println("3. Cliente");
+            System.out.println("4. Salir");
+            System.out.print("Opción: ");
+            mainOption = scanner.nextInt();
+            scanner.nextLine(); // limpiar el buffer
 
-            switch(opcion) {
-                case 1: registrarUsuario(); break;
-                case 2: if (iniciarSesion()) System.out.println("Inicio de sesión exitoso."); break;
-                case 3: mostrarProductos(); break;
-                case 4: buscarProducto(); break;
-                case 5: agregarCarrito(); break;
-                case 6: verCarrito(); break;
-                case 7: procesarPedido(); break;
-                case 8: metodoPago(); break;
-                case 9: generarComprobante(); break;
-                case 10: System.out.println("Gracias por visitar Tiendas EFE. ¡Hasta pronto!"); break;
-                default: System.out.println("Opción inválida.");
+            if(mainOption == 1) {
+                adminMenu();
+            } else if(mainOption == 2) {
+                vendorMenu();
+            } else if(mainOption == 3) {
+                clientMenu();
+            } else if(mainOption == 4) {
+                System.out.println("Gracias por usar Tiendas EFE.");
+            } else {
+                System.out.println("Opción inválida.");
             }
-        } while(opcion != 10);
+        } while(mainOption != 4);
+
+        scanner.close();
     }
 
-    // ================= AXCEL =================
-    public static void registrarUsuario() {
-        System.out.println("\n--- Registro de Usuario ---");
-        System.out.print("Ingrese su nombre: ");
-        nombreGuardado = sc.nextLine();
-        System.out.print("Ingrese sus apellidos: ");
-        apellidosGuardados = sc.nextLine();
-
-        do {
-            System.out.print("Ingrese su DNI (8 dígitos): ");
-            dniGuardado = sc.nextLine();
-        } while (!dniGuardado.matches("\\d{8}"));
-
-        do {
-            System.out.print("Ingrese su celular (9 dígitos): ");
-            celularGuardado = sc.nextLine();
-        } while (!celularGuardado.matches("\\d{9}"));
-
-        do {
-            System.out.print("Ingrese su correo: ");
-            emailGuardado = sc.nextLine();
-        } while (!emailGuardado.matches("^[\\w.-]+@[\\w.-]+\\.com$"));
-
-        System.out.print("Ingrese su contraseña: ");
-        passwordGuardado = sc.nextLine();
-        System.out.println("✅ Registro exitoso.");
+    static void loadInitialProducts() {
+        inventory.add(new String[]{"LG", "TwinWash", "22 kg", "3299", "100"});
+        inventory.add(new String[]{"Samsung", "EcoBubble", "20 kg", "2899", "100"});
+        inventory.add(new String[]{"Mabe", "AquaSaver", "19 kg", "1899", "100"});
     }
 
-    public static boolean iniciarSesion() {
-        System.out.println("\n--- Iniciar Sesión ---");
-        int intentos = 0;
-        while (intentos < 3) {
-            System.out.print("Correo: ");
-            String email = sc.nextLine();
-            System.out.print("Contraseña: ");
-            String pass = sc.nextLine();
+    static void adminMenu() {
+        System.out.println("\n== Administrador ==");
+        System.out.print("Ingrese correo: ");
+        String email = scanner.nextLine();
+        System.out.print("Ingrese contraseña: ");
+        String pass = scanner.nextLine();
+        if(email.equals("administrador@gmail.com") && pass.equals("12345")) {
+            int option;
+            do {
+                System.out.println("\n--- MENÚ ADMINISTRADOR ---");
+                System.out.println("1. Agregar producto");
+                System.out.println("2. Eliminar producto");
+                System.out.println("3. Mostrar productos");
+                System.out.println("4. Salir");
+                System.out.print("Opción: ");
+                option = scanner.nextInt();
+                scanner.nextLine();
 
-            if (email.equals(emailGuardado) && pass.equals(passwordGuardado)) {
-                return true;
-            }
-            intentos++;
-            System.out.println("❌ Datos incorrectos. Intento " + intentos);
-        }
-        System.out.println("❌ Se agotaron los intentos.");
-        return false;
-    }
-
-    // ================= ROMULO =================
-    public static void mostrarProductos() {
-        System.out.println("\n--- Productos Disponibles ---");
-        for (int i = 0; i < productos.size(); i++) {
-            System.out.println((i + 1) + ". " + productos.get(i));
-        }
-    }
-
-    public static void buscarProducto() {
-        System.out.println("\n--- Buscar Producto ---");
-        System.out.print("Buscar por marca o capacidad: ");
-        String criterio = sc.nextLine();
-
-        for (Producto p : productos) {
-            if (p.getMarca().equalsIgnoreCase(criterio) || String.valueOf(p.getCapacidad()).equals(criterio)) {
-                System.out.println(p);
-            }
-        }
-    }
-
-    public static void agregarCarrito() {
-        mostrarProductos();
-        System.out.print("Ingrese el número del producto a agregar al carrito: ");
-        int num = sc.nextInt();
-        sc.nextLine();
-        if (num >= 1 && num <= productos.size()) {
-            carrito.add(productos.get(num - 1));
-            System.out.println("✅ Producto agregado al carrito.");
+                if(option == 1) {
+                    addProduct();
+                } else if(option == 2) {
+                    deleteProduct();
+                } else if(option == 3) {
+                    showInventory();
+                } else if(option == 4) {
+                    System.out.println("Saliendo del modo Administrador.");
+                } else {
+                    System.out.println("Opción inválida.");
+                }
+            } while(option != 4);
         } else {
-            System.out.println("❌ Número inválido.");
+            System.out.println("Credenciales incorrectas.");
         }
     }
 
-    // ================= KENJI =================
-    public static void verCarrito() {
-        System.out.println("\n--- Carrito de Compras ---");
-        if (carrito.isEmpty()) {
-            System.out.println("🛒 El carrito está vacío.");
+    static void addProduct() {
+        System.out.print("Ingrese la marca del producto: ");
+        String brand = scanner.nextLine();
+        System.out.print("Ingrese el nombre del producto: ");
+        String name = scanner.nextLine();
+        System.out.print("Ingrese la capacidad: ");
+        String capacity = scanner.nextLine();
+        System.out.print("Ingrese el precio: ");
+        String price = scanner.nextLine();
+        System.out.print("Ingrese el stock: ");
+        String stock = scanner.nextLine();
+        inventory.add(new String[]{brand, name, capacity, price, stock});
+        System.out.println("Producto agregado con éxito.");
+    }
+
+    static void deleteProduct() {
+        showInventory();
+        System.out.print("Ingrese el índice del producto a eliminar: ");
+        int index = scanner.nextInt();
+        scanner.nextLine();
+        if(index >= 0 && index < inventory.size()){
+            inventory.remove(index);
+            System.out.println("Producto eliminado.");
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+
+    static void showInventory() {
+        if(inventory.isEmpty()){
+            System.out.println("No hay productos en el inventario.");
+        } else {
+            System.out.println("\n--- Inventario ---");
+            for (int i = 0; i < inventory.size(); i++) {
+                String[] prod = inventory.get(i);
+                System.out.println(i + ". Marca: " + prod[0] + " | Nombre: " + prod[1] +
+                        " | Capacidad: " + prod[2] + " | Precio: S/. " + prod[3] +
+                        " | Stock: " + prod[4]);
+            }
+        }
+    }
+
+
+    static void vendorMenu() {
+        System.out.println("\n== Vendedor ==");
+        System.out.print("Registro - Ingrese usuario: ");
+        vendorUsername = scanner.nextLine();
+        System.out.print("Registro - Ingrese contraseña: ");
+        vendorPassword = scanner.nextLine();
+        System.out.println("Vendedor registrado correctamente.");
+
+
+        System.out.println("\nIniciar sesión como vendedor:");
+        System.out.print("Usuario: ");
+        String usernameLogin = scanner.nextLine();
+        System.out.print("Contraseña: ");
+        String passwordLogin = scanner.nextLine();
+        if(usernameLogin.equals(vendorUsername) && passwordLogin.equals(vendorPassword)) {
+            int option;
+            do {
+                System.out.println("\n--- MENÚ VENDEDOR ---");
+                System.out.println("1. Mostrar productos");
+                System.out.println("2. Vender producto");
+                System.out.println("3. Salir");
+                System.out.print("Opción: ");
+                option = scanner.nextInt();
+                scanner.nextLine();
+
+                if(option == 1) {
+                    showInventory();
+                } else if(option == 2) {
+                    sellProduct();
+                } else if(option == 3) {
+                    System.out.println("Saliendo del modo Vendedor.");
+                } else {
+                    System.out.println("Opción inválida.");
+                }
+            } while(option != 3);
+        } else {
+            System.out.println("Usuario o contraseña incorrectos.");
+        }
+    }
+
+    static void sellProduct() {
+        System.out.print("Ingrese el nombre del producto a vender: ");
+        String searchName = scanner.nextLine();
+        boolean found = false;
+        for (int i = 0; i < inventory.size(); i++) {
+            String[] prod = inventory.get(i);
+            if(prod[1].equalsIgnoreCase(searchName)) {
+                found = true;
+                System.out.print("Ingrese cantidad a vender: ");
+                int qty = scanner.nextInt();
+                scanner.nextLine();
+                int currentStock = Integer.parseInt(prod[4]);
+                if(qty > 0 && qty <= currentStock) {
+                    prod[4] = String.valueOf(currentStock - qty);
+                    System.out.println("Venta exitosa. Vendido " + qty + " unidad(es) de " + prod[1]);
+                } else {
+                    System.out.println("Cantidad inválida o stock insuficiente.");
+                }
+                break;
+            }
+        }
+        if(!found) {
+            System.out.println("Producto no encontrado.");
+        }
+    }
+
+    static void clientMenu() {
+        System.out.println("\n== Cliente ==");
+        // Registro del cliente
+        System.out.print("Ingrese Nombres: ");
+        String clientName = scanner.nextLine();
+        System.out.print("Ingrese Apellidos: ");
+        String clientSurname = scanner.nextLine();
+        System.out.print("Ingrese DNI (8 dígitos): ");
+        String clientDNI = scanner.nextLine();
+        System.out.print("Ingrese Número (9 dígitos): ");
+        String clientNumber = scanner.nextLine();
+        System.out.print("Ingrese Correo: ");
+        String clientEmail = scanner.nextLine();
+        System.out.print("Ingrese Contraseña: ");
+        String clientPass = scanner.nextLine();
+
+        // Validación con Regex
+        if(!Pattern.matches("\\d{8}", clientDNI)) {
+            System.out.println("DNI inválido.");
             return;
         }
-        double total = 0;
-        for (Producto p : carrito) {
-            System.out.println(p);
-            total += p.getPrecio();
-        }
-        System.out.println("💰 Total: S/. " + total);
-    }
-
-    public static void procesarPedido() {
-        System.out.println("\n--- Procesar Pedido ---");
-        if (carrito.isEmpty()) {
-            System.out.println("⚠️ El carrito está vacío.");
+        if(!Pattern.matches("\\d{9}", clientNumber)) {
+            System.out.println("Número inválido.");
             return;
         }
-        System.out.println("✅ Pedido procesado con éxito.");
-    }
-
-    // ================= PAUL =================
-    public static void metodoPago() {
-        System.out.println("\n--- Método de Pago ---");
-        System.out.print("Ingrese número de tarjeta (16 dígitos): ");
-        String tarjeta = sc.nextLine();
-        while (!tarjeta.matches("\\d{16}")) {
-            System.out.print("❌ Inválido. Intente otra vez: ");
-            tarjeta = sc.nextLine();
-        }
-
-        System.out.print("Ingrese CVV (3 dígitos): ");
-        String cvv = sc.nextLine();
-        while (!cvv.matches("\\d{3}")) {
-            System.out.print("❌ CVV inválido. Intente otra vez: ");
-            cvv = sc.nextLine();
-        }
-
-        System.out.println("✅ Pago validado correctamente.");
-    }
-
-    public static void generarComprobante() {
-        System.out.println("\n--- Boleta de Venta ---");
-        if (carrito.isEmpty()) {
-            System.out.println("⚠️ No hay productos para generar boleta.");
+        if(!Pattern.matches("[a-zA-Z0-9._]+@[a-zA-Z]+\\.com", clientEmail)) {
+            System.out.println("Correo inválido.");
             return;
         }
+        System.out.println("Cliente registrado exitosamente.");
+
+        // Inicio de sesión con límite de 3 intentos
+        int attempts = 0;
+        boolean loggedIn = false;
+        while(attempts < 3 && !loggedIn) {
+            System.out.println("\nInicie sesión como cliente:");
+            System.out.print("Ingrese Correo: ");
+            String loginEmail = scanner.nextLine();
+            System.out.print("Ingrese Contraseña: ");
+            String loginPass = scanner.nextLine();
+            if(loginEmail.equals(clientEmail) && loginPass.equals(clientPass)) {
+                loggedIn = true;
+            } else {
+                System.out.println("Credenciales incorrectas.");
+                attempts++;
+            }
+        }
+        if(!loggedIn) {
+            System.out.println("Límite de intentos alcanzado.");
+            return;
+        }
+        System.out.println("Sesión iniciada.");
+
+        int option;
+        do {
+            System.out.println("\n--- MENÚ CLIENTE ---");
+            System.out.println("1. Mostrar productos");
+            System.out.println("2. Buscar productos");
+            System.out.println("3. Agregar producto al carrito");
+            System.out.println("4. Eliminar producto del carrito");
+            System.out.println("5. Ver carrito");
+            System.out.println("6. Procesar pedido");
+            System.out.println("7. Salir");
+            System.out.print("Opción: ");
+            option = scanner.nextInt();
+            scanner.nextLine();
+
+            if(option == 1) {
+                showInventory();
+            } else if(option == 2) {
+                searchProducts();
+            } else if(option == 3) {
+                addToCart();
+            } else if(option == 4) {
+                removeFromCart();
+            } else if(option == 5) {
+                viewCart();
+            } else if(option == 6) {
+                processOrder(clientName, clientSurname, clientDNI);
+            } else if(option == 7) {
+                System.out.println("Saliendo de cliente.");
+            } else {
+                System.out.println("Opción inválida.");
+            }
+        } while(option != 7);
+    }
+
+    static void searchProducts() {
+        System.out.print("Ingrese texto para buscar productos (marca o nombre): ");
+        String keyword = scanner.nextLine().toLowerCase();
+        boolean found = false;
+        for (int i = 0; i < inventory.size(); i++) {
+            String[] prod = inventory.get(i);
+            if(prod[0].toLowerCase().contains(keyword) || prod[1].toLowerCase().contains(keyword)) {
+                System.out.println(i + ". Marca: " + prod[0] + " | Nombre: " + prod[1] +
+                        " | Capacidad: " + prod[2] + " | Precio: S/. " + prod[3] +
+                        " | Stock: " + prod[4]);
+                found = true;
+            }
+        }
+        if(!found) {
+            System.out.println("No se encontraron productos que coincidan.");
+        }
+    }
+
+    static void addToCart() {
+        showInventory();
+        System.out.print("Ingrese el índice del producto a agregar al carrito: ");
+        int index = scanner.nextInt();
+        scanner.nextLine();
+        if(index >= 0 && index < inventory.size()){
+            cart.add(inventory.get(index));
+            System.out.println("Producto agregado al carrito.");
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+
+    static void removeFromCart() {
+        viewCart();
+        System.out.print("Ingrese el índice del producto a remover del carrito: ");
+        int index = scanner.nextInt();
+        scanner.nextLine();
+        if(index >= 0 && index < cart.size()){
+            cart.remove(index);
+            System.out.println("Producto eliminado del carrito.");
+        } else {
+            System.out.println("Índice inválido.");
+        }
+    }
+
+    static void viewCart() {
+        if(cart.isEmpty()){
+            System.out.println("El carrito está vacío.");
+        } else {
+            System.out.println("\n--- Carrito de Compras ---");
+            for (int i = 0; i < cart.size(); i++){
+                String[] prod = cart.get(i);
+                System.out.println(i + ". Marca: " + prod[0] + " | Nombre: " + prod[1] + " | Precio: S/. " + prod[3]);
+            }
+        }
+    }
+
+    static void processOrder(String clientName, String clientSurname, String clientDNI) {
+        if(cart.isEmpty()){
+            System.out.println("El carrito está vacío. Agregue productos antes de procesar el pedido.");
+            return;
+        }
+        System.out.println("Seleccione tipo de envío:");
+        System.out.println("1. Envío Normal (S/. 20)");
+        System.out.println("2. Envío Express (S/. 50)");
+        System.out.print("Opción: ");
+        int shipOption = scanner.nextInt();
+        scanner.nextLine();
+        double shippingCost = (shipOption == 1) ? 20 : 50;
 
         double subtotal = 0;
-        for (Producto p : carrito) {
-            subtotal += p.getPrecio();
+        for(String[] prod : cart) {
+            subtotal += Double.parseDouble(prod[3]);
         }
-        double igv = subtotal * 0.18;
-        double total = subtotal + igv;
+        double total = subtotal + shippingCost;
 
-        System.out.println("Cliente: " + nombreGuardado + " " + apellidosGuardados);
-        System.out.println("DNI: " + dniGuardado);
-        System.out.println("\nDetalle de compra:");
-        for (Producto p : carrito) {
-            System.out.println(p);
+        System.out.println("Seleccione método de pago:");
+        System.out.println("1. Tarjeta de Crédito");
+        System.out.println("2. Tarjeta de Débito");
+        System.out.print("Opción: ");
+        int paymentOption = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Ingrese número de tarjeta (16 dígitos): ");
+        String cardNumber = scanner.nextLine();
+        System.out.print("Ingrese CVV (3 dígitos): ");
+        String cvv = scanner.nextLine();
+        if(!Pattern.matches("\\d{16}", cardNumber) || !Pattern.matches("\\d{3}", cvv)){
+            System.out.println("Datos de tarjeta inválidos.");
+            return;
         }
-        System.out.println("\nSubtotal: S/. " + subtotal);
-        System.out.println("IGV: S/. " + igv);
+
+        System.out.print("Ingrese Provincia: ");
+        String province = scanner.nextLine();
+        System.out.print("Ingrese Distrito: ");
+        String district = scanner.nextLine();
+        System.out.print("Ingrese Departamento: ");
+        String department = scanner.nextLine();
+        System.out.print("Ingrese Dirección: ");
+        String address = scanner.nextLine();
+
         System.out.println("Total a pagar: S/. " + total);
-        System.out.println("✅ ¡Gracias por su compra!");
+        System.out.print("Ingrese monto pagado: S/. ");
+        double amountPaid = scanner.nextDouble();
+        scanner.nextLine();
+
+        if(amountPaid < total) {
+            System.out.println("Pago insuficiente. Transacción cancelada.");
+            return;
+        }
+        double change = amountPaid - total;
+        System.out.println("Pago aceptado. Su cambio es S/. " + change);
+        // Genera la boleta y la exporta a un archivo TXT
+        generateReceipt(clientName, clientSurname, clientDNI, subtotal, shippingCost, total, amountPaid, change, province, district, department, address);
+        cart.clear();
+    }
+
+    static void generateReceipt(String name, String surname, String dni, double subtotal, double shipping, double total, double amountPaid, double change, String province, String district, String department, String address) {
+        try {
+            FileWriter writer = new FileWriter("boleta.txt");
+            writer.write("=== BOLETA DE VENTA ===\n");
+            writer.write("Cliente: " + name + " " + surname + "\n");
+            writer.write("DNI: " + dni + "\n");
+            writer.write("Subtotal: S/. " + subtotal + "\n");
+            writer.write("Costo de envío: S/. " + shipping + "\n");
+            writer.write("Total: S/. " + total + "\n");
+            writer.write("Monto pagado: S/. " + amountPaid + "\n");
+            writer.write("Cambio: S/. " + change + "\n");
+            writer.write("Dirección de envío: " + province + ", " + district + ", " + department + ", " + address + "\n");
+            writer.write("\nProductos comprados:\n");
+            for(String[] prod : cart) {
+                writer.write("- " + prod[1] + ": S/. " + prod[3] + "\n");
+            }
+            writer.close();
+            System.out.println("Boleta generada y guardada en boleta.txt");
+        } catch(IOException e) {
+            System.out.println("Error al generar la boleta.");
+        }
     }
 }
-
-// ================= Clase Producto =================
-class Producto {
-    private String marca;
-    private String modelo;
-    private int capacidad;
-    private double precio;
-
-    public Producto(String marca, String modelo, int capacidad, double precio) {
-        this.marca = marca;
-        this.modelo = modelo;
-        this.capacidad = capacidad;
-        this.precio = precio;
-    }
-
-    public String getMarca() { return marca; }
-    public int getCapacidad() { return capacidad; }
-    public double getPrecio() { return precio; }
-
-    public String toString() {
-        return "Marca: " + marca + " | Modelo: " + modelo + " | Capacidad: " + capacidad + "kg | Precio: S/. " + precio;
-    }
-}
-
