@@ -1,0 +1,610 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class PROYECTOCASIFINALTIENDASEFE {
+    static Scanner escaner = new Scanner(System.in);
+
+    static ArrayList<String> nombresCategorias = new ArrayList<>();
+    static ArrayList<ArrayList<String[]>> productosPorCategoria = new ArrayList<>();
+
+    static ArrayList<String[]> carrito = new ArrayList<>();
+    static String usuarioVendedor = "";
+    static String contrasenaVendedor = "";
+
+    public static void main(String[] args) {
+        cargarProductosIniciales();
+
+        int opcionPrincipal;
+        do {
+            System.out.println("\n=== TIENDAS EFE ===");
+            System.out.println("Seleccione su rol:");
+            System.out.println("1. Administrador");
+            System.out.println("2. Vendedor");
+            System.out.println("3. Cliente");
+            System.out.println("4. Salir");
+            System.out.print("Opción: ");
+            opcionPrincipal = escaner.nextInt();
+            escaner.nextLine();
+
+            if(opcionPrincipal == 1) {
+                menuAdministrador();
+            } else if(opcionPrincipal == 2) {
+                menuVendedor();
+            } else if(opcionPrincipal == 3) {
+                menuCliente();
+            } else if(opcionPrincipal == 4) {
+                System.out.println("Gracias por usar Tiendas EFE.");
+            } else {
+                System.out.println("Opción inválida.");
+            }
+        } while(opcionPrincipal != 4);
+
+        escaner.close();
+    }
+
+    static void cargarProductosIniciales() {
+        nombresCategorias.add("Lavadoras");
+        ArrayList<String[]> lavadoras = new ArrayList<>();
+        lavadoras.add(new String[]{"LG", "TwinWash", "22 kg", "3299", "100"});
+        lavadoras.add(new String[]{"Samsung", "EcoBubble", "20 kg", "2899", "100"});
+        lavadoras.add(new String[]{"Mabe", "AquaSaver", "19 kg", "1899", "100"});
+        productosPorCategoria.add(lavadoras);
+    }
+
+    static void menuAdministrador() {
+        System.out.println("\n== Administrador ==");
+        System.out.print("Ingrese correo: ");
+        String email = escaner.nextLine();
+        System.out.print("Ingrese contraseña: ");
+        String contrasena = escaner.nextLine();
+        if(email.equals("administrador@gmail.com") && contrasena.equals("12345")) {
+            int opcion;
+            do {
+                System.out.println("\n--- MENÚ ADMINISTRADOR ---");
+                System.out.println("1. Agregar categoría");
+                System.out.println("2. Agregar producto a categoría");
+                System.out.println("3. Eliminar producto de categoría");
+                System.out.println("4. Mostrar todas las categorías y productos");
+                System.out.println("5. Salir");
+                System.out.print("Opción: ");
+                opcion = escaner.nextInt();
+                escaner.nextLine();
+
+                if(opcion == 1) {
+                    agregarCategoria();
+                } else if(opcion == 2) {
+                    agregarProductoACategoria();
+                } else if(opcion == 3) {
+                    eliminarProductoDeCategoria();
+                } else if(opcion == 4) {
+                    mostrarTodasCategoriasYProductos();
+                } else if(opcion == 5) {
+                    System.out.println("Saliendo del modo Administrador.");
+                } else {
+                    System.out.println("Opción inválida.");
+                }
+            } while(opcion != 5);
+        } else {
+            System.out.println("Credenciales incorrectas.");
+        }
+    }
+
+    static void agregarCategoria() {
+        System.out.print("Ingrese el nombre de la nueva categoría: ");
+        String nuevaCategoria = escaner.nextLine();
+        if (nombresCategorias.contains(nuevaCategoria)) {
+            System.out.println("❌ La categoría '" + nuevaCategoria + "' ya existe.");
+        } else {
+            nombresCategorias.add(nuevaCategoria);
+            productosPorCategoria.add(new ArrayList<String[]>());
+            System.out.println("✅ Categoría '" + nuevaCategoria + "' agregada con éxito.");
+        }
+    }
+
+    static void agregarProductoACategoria() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay categorías para agregar productos. Primero agregue una categoría.");
+            return;
+        }
+
+        System.out.println("\n--- Seleccione una categoría para agregar producto ---");
+        for (int i = 0; i < nombresCategorias.size(); i++) {
+            System.out.println(i + ". " + nombresCategorias.get(i));
+        }
+
+        System.out.print("Ingrese el índice de la categoría: ");
+        int indiceCategoria = escaner.nextInt();
+        escaner.nextLine();
+
+        if (indiceCategoria >= 0 && indiceCategoria < nombresCategorias.size()) {
+            ArrayList<String[]> productosEnCategoria = productosPorCategoria.get(indiceCategoria);
+
+            System.out.print("Ingrese la marca del producto: ");
+            String marca = escaner.nextLine();
+            System.out.print("Ingrese el nombre del producto: ");
+            String nombre = escaner.nextLine();
+            System.out.print("Ingrese la capacidad: ");
+            String capacidad = escaner.nextLine();
+            System.out.print("Ingrese el precio: ");
+            String precio = escaner.nextLine();
+            System.out.print("Ingrese el stock: ");
+            String stock = escaner.nextLine();
+
+            productosEnCategoria.add(new String[]{marca, nombre, capacidad, precio, stock});
+            System.out.println("✅ Producto agregado a la categoría '" + nombresCategorias.get(indiceCategoria) + "' con éxito.");
+        } else {
+            System.out.println("❌ Índice de categoría inválido.");
+        }
+    }
+
+    static void eliminarProductoDeCategoria() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay categorías ni productos para eliminar.");
+            return;
+        }
+
+        System.out.println("\n--- Seleccione una categoría para eliminar producto ---");
+        for (int i = 0; i < nombresCategorias.size(); i++) {
+            System.out.println(i + ". " + nombresCategorias.get(i));
+        }
+
+        System.out.print("Ingrese el índice de la categoría: ");
+        int indiceCategoria = escaner.nextInt();
+        escaner.nextLine();
+
+        if (indiceCategoria >= 0 && indiceCategoria < nombresCategorias.size()) {
+            ArrayList<String[]> productosEnCategoria = productosPorCategoria.get(indiceCategoria);
+
+            if (productosEnCategoria.isEmpty()) {
+                System.out.println("No hay productos en esta categoría para eliminar.");
+                return;
+            }
+
+            System.out.println("\n--- Productos en '" + nombresCategorias.get(indiceCategoria) + "' ---");
+            for (int i = 0; i < productosEnCategoria.size(); i++) {
+                String[] prod = productosEnCategoria.get(i);
+                System.out.println(i + ". Marca: " + prod[0] + " | Nombre: " + prod[1] +
+                        " | Capacidad: " + prod[2] + " | Precio: S/. " + prod[3] +
+                        " | Stock: " + prod[4]);
+            }
+
+            System.out.print("Ingrese el índice del producto a eliminar: ");
+            int indiceProducto = escaner.nextInt();
+            escaner.nextLine();
+
+            if (indiceProducto >= 0 && indiceProducto < productosEnCategoria.size()) {
+                String[] productoEliminado = productosEnCategoria.remove(indiceProducto);
+                System.out.println("✅ Producto '" + productoEliminado[1] + "' eliminado de la categoría '" + nombresCategorias.get(indiceCategoria) + "'.");
+            } else {
+                System.out.println("❌ Índice de producto inválido.");
+            }
+        } else {
+            System.out.println("❌ Índice de categoría inválido.");
+        }
+    }
+
+    static void mostrarTodasCategoriasYProductos() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay categorías registradas.");
+            return;
+        }
+        System.out.println("\n--- Todas las Categorías y Productos ---");
+        for (int i = 0; i < nombresCategorias.size(); i++) {
+            System.out.println("\nCategoría: " + nombresCategorias.get(i) + " (Índice: " + i + ")");
+            ArrayList<String[]> productos = productosPorCategoria.get(i);
+            if (productos.isEmpty()) {
+                System.out.println("  No hay productos en esta categoría.");
+            } else {
+                for (int j = 0; j < productos.size(); j++) {
+                    String[] prod = productos.get(j);
+                    System.out.println("  " + j + ". Marca: " + prod[0] + " | Nombre: " + prod[1] +
+                            " | Capacidad: " + prod[2] + " | Precio: S/. " + prod[3] +
+                            " | Stock: " + prod[4]);
+                }
+            }
+        }
+        System.out.println("----------------------------------------");
+    }
+
+    static void mostrarInventario(int indiceCategoria) {
+        if (indiceCategoria < 0 || indiceCategoria >= productosPorCategoria.size()) {
+            System.out.println("Categoría inválida.");
+            return;
+        }
+        ArrayList<String[]> productos = productosPorCategoria.get(indiceCategoria);
+        if (productos.isEmpty()) {
+            System.out.println("No hay productos en la categoría '" + nombresCategorias.get(indiceCategoria) + "'.");
+            return;
+        }
+        System.out.println("\n--- Inventario de la categoría: " + nombresCategorias.get(indiceCategoria) + " ---");
+        for (int i = 0; i < productos.size(); i++) {
+            String[] prod = productos.get(i);
+            System.out.println(i + ". Marca: " + prod[0] + " | Nombre: " + prod[1] +
+                    " | Capacidad: " + prod[2] + " | Precio: S/. " + prod[3] +
+                    " | Stock: " + prod[4]);
+        }
+    }
+
+    static void mostrarInventario() {
+        mostrarTodasCategoriasYProductos();
+    }
+
+
+    static void menuVendedor() {
+        System.out.println("\n== Vendedor ==");
+        System.out.print("Registro - Ingrese usuario: ");
+        usuarioVendedor = escaner.nextLine();
+        System.out.print("Registro - Ingrese contraseña: ");
+        contrasenaVendedor = escaner.nextLine();
+        System.out.println("Vendedor registrado correctamente.");
+
+        System.out.println("\nIniciar sesión como vendedor:");
+        System.out.print("Usuario: ");
+        String usuarioLogin = escaner.nextLine();
+        System.out.print("Contraseña: ");
+        String contrasenaLogin = escaner.nextLine();
+        if(usuarioLogin.equals(usuarioVendedor) && contrasenaLogin.equals(contrasenaVendedor)) {
+            int opcion;
+            do {
+                System.out.println("\n--- MENÚ VENDEDOR ---");
+                System.out.println("1. Mostrar todos los productos");
+                System.out.println("2. Vender producto");
+                System.out.println("3. Salir");
+                System.out.print("Opción: ");
+                opcion = escaner.nextInt();
+                escaner.nextLine();
+
+                if(opcion == 1) {
+                    mostrarTodasCategoriasYProductos();
+                } else if(opcion == 2) {
+                    venderProducto();
+                } else if(opcion == 3) {
+                    System.out.println("Saliendo del modo Vendedor.");
+                } else {
+                    System.out.println("Opción inválida.");
+                }
+            } while(opcion != 3);
+        } else {
+            System.out.println("Usuario o contraseña incorrectos.");
+        }
+    }
+
+    static void venderProducto() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay productos disponibles para vender.");
+            return;
+        }
+
+        System.out.print("Ingrese el nombre del producto a vender: ");
+        String nombreBusqueda = escaner.nextLine().toLowerCase();
+        boolean encontrado = false;
+
+        for (ArrayList<String[]> productosEnCategoria : productosPorCategoria) {
+            for (String[] prod : productosEnCategoria) {
+                if(prod[1].toLowerCase().contains(nombreBusqueda)) {
+                    encontrado = true;
+                    System.out.print("Ingrese cantidad a vender: ");
+                    int cantidad = escaner.nextInt();
+                    escaner.nextLine();
+                    int currentStock = Integer.parseInt(prod[4]);
+                    if(cantidad > 0 && cantidad <= currentStock) {
+                        prod[4] = String.valueOf(currentStock - cantidad);
+                        System.out.println("✅ Venta exitosa. Vendido " + cantidad + " unidad(es) de " + prod[1]);
+                    } else {
+                        System.out.println("❌ Cantidad inválida o stock insuficiente.");
+                    }
+                    return;
+                }
+            }
+        }
+        if(!encontrado) {
+            System.out.println("❌ Producto no encontrado.");
+        }
+    }
+
+
+    static void menuCliente() {
+        System.out.println("\n== Cliente ==");
+        System.out.print("Ingrese Nombres: ");
+        String nombreCliente = escaner.nextLine();
+        System.out.print("Ingrese Apellidos: ");
+        String apellidoCliente = escaner.nextLine();
+        System.out.print("Ingrese DNI (8 dígitos): ");
+        String dniCliente = escaner.nextLine();
+        System.out.print("Ingrese Número (9 dígitos): ");
+        String numeroCliente = escaner.nextLine();
+        System.out.print("Ingrese Correo: ");
+        String emailCliente = escaner.nextLine();
+        System.out.print("Ingrese Contraseña: ");
+        String contrasenaCliente = escaner.nextLine();
+
+        if(!Pattern.matches("\\d{8}", dniCliente)) {
+            System.out.println("❌ DNI inválido.");
+            return;
+        }
+        if(!Pattern.matches("\\d{9}", numeroCliente)) {
+            System.out.println("❌ Número inválido.");
+            return;
+        }
+        if(!Pattern.matches("[a-zA-Z0-9._]+@[a-zA-Z]+\\.com", emailCliente)) {
+            System.out.println("❌ Correo inválido.");
+            return;
+        }
+        System.out.println("✅ Cliente registrado exitosamente.");
+
+        int intentos = 0;
+        boolean sesionIniciada = false;
+        while(intentos < 3 && !sesionIniciada) {
+            System.out.println("\nInicie sesión como cliente:");
+            System.out.print("Ingrese Correo: ");
+            String loginEmail = escaner.nextLine();
+            System.out.print("Ingrese Contraseña: ");
+            String loginContrasena = escaner.nextLine();
+            if(loginEmail.equals(emailCliente) && loginContrasena.equals(contrasenaCliente)) {
+                sesionIniciada = true;
+            } else {
+                System.out.println("❌ Credenciales incorrectas.");
+                intentos++;
+            }
+        }
+        if(!sesionIniciada) {
+            System.out.println("❌ Límite de intentos alcanzado.");
+            return;
+        }
+        System.out.println("✅ Sesión iniciada.");
+
+        int opcion;
+        do {
+            System.out.println("\n--- MENÚ CLIENTE ---");
+            System.out.println("1. Mostrar categorías");
+            System.out.println("2. Buscar productos");
+            System.out.println("3. Agregar producto al carrito");
+            System.out.println("4. Eliminar producto del carrito");
+            System.out.println("5. Ver carrito");
+            System.out.println("6. Procesar pedido");
+            System.out.println("7. Salir");
+            System.out.print("Opción: ");
+            opcion = escaner.nextInt();
+            escaner.nextLine();
+
+            if(opcion == 1) {
+                mostrarCategoriasCliente();
+            } else if(opcion == 2) {
+                buscarProductosCliente();
+            } else if(opcion == 3) {
+                agregarAlCarrito();
+            } else if(opcion == 4) {
+                eliminarDelCarrito();
+            } else if(opcion == 5) {
+                verCarrito();
+            } else if(opcion == 6) {
+                procesarPedido(nombreCliente, apellidoCliente, dniCliente);
+            } else if(opcion == 7) {
+                System.out.println("Saliendo de cliente.");
+            } else {
+                System.out.println("❌ Opción inválida.");
+            }
+        } while(opcion != 7);
+    }
+
+    static void mostrarCategoriasCliente() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay categorías disponibles.");
+            return;
+        }
+        int opcionCategoria;
+        do {
+            System.out.println("\n--- CATEGORÍAS DISPONIBLES ---");
+            for (int i = 0; i < nombresCategorias.size(); i++) {
+                System.out.println(i + ". " + nombresCategorias.get(i));
+            }
+            System.out.println(nombresCategorias.size() + ". Volver al menú Cliente");
+            System.out.print("Seleccione una categoría: ");
+            opcionCategoria = escaner.nextInt();
+            escaner.nextLine();
+
+            if (opcionCategoria >= 0 && opcionCategoria < nombresCategorias.size()) {
+                mostrarInventario(opcionCategoria);
+            } else if (opcionCategoria == nombresCategorias.size()) {
+                System.out.println("Volviendo al menú Cliente.");
+            } else {
+                System.out.println("❌ Categoría inválida.");
+            }
+        } while (opcionCategoria != nombresCategorias.size());
+    }
+
+    static void buscarProductosCliente() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay productos disponibles para buscar.");
+            return;
+        }
+        System.out.print("Ingrese texto para buscar productos (marca o nombre): ");
+        String palabraClave = escaner.nextLine().toLowerCase();
+        boolean encontrado = false;
+
+        System.out.println("\n--- Resultados de la búsqueda ---");
+        for (int i = 0; i < nombresCategorias.size(); i++) {
+            ArrayList<String[]> productosEnCategoria = productosPorCategoria.get(i);
+            for (int j = 0; j < productosEnCategoria.size(); j++) {
+                String[] prod = productosEnCategoria.get(j);
+                if(prod[0].toLowerCase().contains(palabraClave) || prod[1].toLowerCase().contains(palabraClave)) {
+                    System.out.println("Categoría: " + nombresCategorias.get(i) + " | Producto: " + prod[1] +
+                            " | Precio: S/. " + prod[3] + " | Stock: " + prod[4]);
+                    encontrado = true;
+                }
+            }
+        }
+        if(!encontrado) {
+            System.out.println("No se encontraron productos que coincidan.");
+        }
+    }
+
+    static void agregarAlCarrito() {
+        if (nombresCategorias.isEmpty()) {
+            System.out.println("No hay productos disponibles para agregar al carrito.");
+            return;
+        }
+        System.out.println("\n--- Seleccione una categoría para agregar al carrito ---");
+        for (int i = 0; i < nombresCategorias.size(); i++) {
+            System.out.println(i + ". " + nombresCategorias.get(i));
+        }
+        System.out.print("Ingrese el índice de la categoría: ");
+        int indiceCategoria = escaner.nextInt();
+        escaner.nextLine();
+
+        if (indiceCategoria < 0 || indiceCategoria >= nombresCategorias.size()) {
+            System.out.println("❌ Índice de categoría inválido.");
+            return;
+        }
+
+        mostrarInventario(indiceCategoria);
+
+        ArrayList<String[]> productosDeCategoria = productosPorCategoria.get(indiceCategoria);
+        if (productosDeCategoria.isEmpty()) {
+            System.out.println("No hay productos en esta categoría para agregar.");
+            return;
+        }
+
+        System.out.print("Ingrese el índice del producto a agregar al carrito: ");
+        int indiceProducto = escaner.nextInt();
+        escaner.nextLine();
+
+        if(indiceProducto >= 0 && indiceProducto < productosDeCategoria.size()){
+            String[] productoSeleccionado = productosDeCategoria.get(indiceProducto);
+            carrito.add(productoSeleccionado);
+            System.out.println("✅ Producto '" + productoSeleccionado[1] + "' agregado al carrito.");
+        } else {
+            System.out.println("❌ Índice de producto inválido.");
+        }
+    }
+
+    static void eliminarDelCarrito() {
+        if(carrito.isEmpty()){
+            System.out.println("El carrito está vacío.");
+            return;
+        }
+        verCarrito();
+        System.out.print("Ingrese el índice del producto a remover del carrito: ");
+        int indice = escaner.nextInt();
+        escaner.nextLine();
+        if(indice >= 0 && indice < carrito.size()){
+            String[] productoEliminado = carrito.remove(indice);
+            System.out.println("✅ Producto '" + productoEliminado[1] + "' eliminado del carrito.");
+        } else {
+            System.out.println("❌ Índice inválido.");
+        }
+    }
+
+    static void verCarrito() {
+        if(carrito.isEmpty()){
+            System.out.println("El carrito está vacío.");
+        } else {
+            System.out.println("\n--- Carrito de Compras ---");
+            for (int i = 0; i < carrito.size(); i++){
+                String[] prod = carrito.get(i);
+                System.out.println(i + ". Marca: " + prod[0] + " | Nombre: " + prod[1] + " | Precio: S/. " + prod[3]);
+            }
+        }
+    }
+
+    static void procesarPedido(String nombreCliente, String apellidoCliente, String dniCliente) {
+        if(carrito.isEmpty()){
+            System.out.println("El carrito está vacío. Agregue productos antes de procesar el pedido.");
+            return;
+        }
+        System.out.println("Seleccione tipo de envío:");
+        System.out.println("1. Envío Normal (S/. 20)");
+        System.out.println("2. Envío Express (S/. 50)");
+        System.out.print("Opción: ");
+        int opcionEnvio = escaner.nextInt();
+        escaner.nextLine();
+        double costoEnvio = (opcionEnvio == 1) ? 20 : 50;
+
+        double subtotal = 0;
+        for(String[] prod : carrito) {
+            subtotal += Double.parseDouble(prod[3]);
+        }
+        double total = subtotal + costoEnvio;
+
+        System.out.println("Seleccione método de pago:");
+        System.out.println("1. Tarjeta de Crédito");
+        System.out.println("2. Tarjeta de Débito");
+        System.out.print("Opción: ");
+        int opcionPago = escaner.nextInt();
+        escaner.nextLine();
+
+        System.out.print("Ingrese número de tarjeta (16 dígitos): ");
+        String numeroTarjeta = escaner.nextLine();
+        System.out.print("Ingrese CVV (3 dígitos): ");
+        String cvv = escaner.nextLine();
+        if(!Pattern.matches("\\d{16}", numeroTarjeta) || !Pattern.matches("\\d{3}", cvv)){
+            System.out.println("❌ Datos de tarjeta inválidos.");
+            return;
+        }
+
+        System.out.print("Ingrese Provincia: ");
+        String provincia = escaner.nextLine();
+        System.out.print("Ingrese Distrito: ");
+        String distrito = escaner.nextLine();
+        System.out.print("Ingrese Departamento: ");
+        String departamento = escaner.nextLine();
+        System.out.print("Ingrese Dirección: ");
+        String direccion = escaner.nextLine();
+
+        System.out.println("Total a pagar: S/. " + total);
+        System.out.print("Ingrese monto pagado: S/. ");
+        double montoPagado = escaner.nextDouble();
+        escaner.nextLine();
+
+        if(montoPagado < total) {
+            System.out.println("❌ Pago insuficiente. Transacción cancelada.");
+            return;
+        }
+        double cambio = montoPagado - total;
+        System.out.println("✅ Pago aceptado. Su cambio es S/. " + cambio);
+        generarBoleta(nombreCliente, apellidoCliente, dniCliente, subtotal, costoEnvio, total, montoPagado, cambio, provincia, distrito, departamento, direccion);
+
+        for(String[] productoCarrito : carrito) {
+            for (ArrayList<String[]> productosEnCategoria : productosPorCategoria) {
+                for (String[] prodInventario : productosEnCategoria) {
+                    if (prodInventario == productoCarrito) {
+                        int stockActual = Integer.parseInt(prodInventario[4]);
+                        prodInventario[4] = String.valueOf(stockActual - 1);
+                        break;
+                    }
+                }
+            }
+        }
+        carrito.clear();
+    }
+
+    static void generarBoleta(String nombre, String apellido, String dni, double subtotal, double envio, double total, double montoPagado, double cambio, String provincia, String distrito, String departamento, String direccion) {
+        try {
+            FileWriter escritor = new FileWriter("boleta.txt");
+            escritor.write("=== BOLETA DE VENTA ===\n");
+            escritor.write("Fecha: " + java.time.LocalDate.now() + "\n");
+            escritor.write("Hora: " + java.time.LocalTime.now() + "\n");
+            escritor.write("Cliente: " + nombre + " " + apellido + "\n");
+            escritor.write("DNI: " + dni + "\n");
+            escritor.write("Dirección de envío: " + direccion + ", " + distrito + ", " + provincia + ", " + departamento + "\n");
+            escritor.write("\n--- Detalle de Productos ---\n");
+            for(String[] prod : carrito) {
+                escritor.write("- " + prod[1] + " (Marca: " + prod[0] + ", Capacidad: " + prod[2] + "): S/. " + prod[3] + "\n");
+            }
+            escritor.write("----------------------------\n");
+            escritor.write("Subtotal: S/. " + subtotal + "\n");
+            escritor.write("Costo de envío: S/. " + envio + "\n");
+            escritor.write("Total a pagar: S/. " + total + "\n");
+            escritor.write("Monto pagado: S/. " + montoPagado + "\n");
+            escritor.write("Cambio: S/. " + cambio + "\n");
+            escritor.write("============================\n");
+            escritor.close();
+            System.out.println("✅ Boleta generada y guardada en boleta.txt");
+        } catch(IOException e) {
+            System.out.println("❌ Error al generar la boleta.");
+        }
+    }
+}
