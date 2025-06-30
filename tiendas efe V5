@@ -857,7 +857,7 @@ public class PROYECTOFINALTIENDASEFE {
                 String[] productoParaCarrito = productoSeleccionado.clone();
                 productoParaCarrito[4] = String.valueOf(cantidad);
                 carritoCliente.add(productoParaCarrito);
-                System.out.println("✅ " + cantidad + " unidad(es) de '" + productoSeleccionado[1] + "' agregada(s) al carrito.");
+                System.out.println(" " + cantidad + " unidad(es) de '" + productoSeleccionado[1] + "' agregada(s) al carrito.");
             } else {
                 System.out.println(" Cantidad inválida o stock insuficiente. Stock disponible: " + stockDisponible);
             }
